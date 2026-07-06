@@ -12,10 +12,12 @@ At equilibrium the spring force balances the applied load:
 This is a cubic polynomial equation in x -- power-rule derivative only.
 """
 
+import pandas as pd
+
 from newton_raphson import newton_raphson
 
 
-def run_spring_application(x0=2.0, tol=1e-6, verbose=True):
+def run_spring_application(x0: float = 2.0, tol: float = 1e-6, verbose: bool = True) -> tuple[float | None, pd.DataFrame, str]:
     """
     Sets up and solves the nonlinear spring-mass equilibrium problem.
     Returns (root, history_table, status_message).
