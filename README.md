@@ -1,3 +1,35 @@
+# Newton-Raphson Solver for Nonlinear Engineering Problems
+
+## What this project does
+
+Many engineering problems cannot be solved with simple algebra because the equations are **nonlinear**. This project builds a general-purpose **Newton-Raphson solver** in Python that finds the root (solution) of any nonlinear polynomial equation, and applies it to two real engineering problems.
+
+The derivative needed by the Newton-Raphson formula is computed **automatically** using the SymPy library, so no manual calculus is required in the code. Every equation is also validated before solving, so a typo or an unexpected symbol produces a clear error message instead of a raw crash.
+
+---
+
+## Project Structure
+
+| File | What it does |
+|---|---|
+| `newton_raphson.py` | The core solver. Works for any equation, checks for 3 common failure cases, and estimates the empirical order of convergence at each step. |
+| `application_beam.py` | Application 1 — finds where a beam reaches an allowable deflection. |
+| `application_spring.py` | Application 2 — finds the equilibrium displacement of a nonlinear spring. |
+| `utilities.py` | Helper functions — CSV export, equation validation, comparison table printing. |
+| `visualization.py` | Draws the convergence graphs for both applications (scales automatically to any number of applications). |
+| `main.py` | Runs everything in one go. This is the file you actually execute. |
+| `tests/test_newton_raphson.py` | Pytest checks for the solver's core behavior and all safety checks. |
+| `tests/test_applications.py` | Pytest checks confirming both engineering applications converge correctly. |
+
+---
+
+## How to Install
+
+| Step | Command / Action |
+|---|---|
+| 1. Open a terminal in the project folder | — |
+| 2. Install the required packages | `pip install -r requirements.txt` |
+
 `pytest` is only needed for automated testing. The main project still runs with `python src/main.py`.
 
 ---
