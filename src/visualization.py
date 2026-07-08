@@ -30,7 +30,7 @@ def plot_convergence(results_dict: dict[str, tuple[float | None, pd.DataFrame, s
 
     for ax, name, color in zip(axes, names, colors):
         _, table, _ = results_dict[name]
-        ax.plot(table["Iteration"], table["Error"], marker="o", color=color, linewidth=2)
+        ax.plot(table["Iteration"], table["Raw Error"], marker="o", color=color, linewidth=2)
         ax.set_title(name)
         ax.set_xlabel("Iteration")
         ax.set_ylabel("Error")

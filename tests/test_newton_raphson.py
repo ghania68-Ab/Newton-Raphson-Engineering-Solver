@@ -18,6 +18,14 @@ def test_solver_finds_known_root() -> None:
     assert result["converged"] is True
     assert math.isclose(result["root"], 1.52138, rel_tol=0, abs_tol=1e-5)
 
+    # Order-of-convergence should approach ~2.0 in the final iterations
+    table = result["history"]
+    late_orders = table["Order Estimate"].dropna().iloc[-2:].tolist()
+    for order_val in late_orders:
+        assert 1.0 < order_val < 4.0, (
+            f"Order estimate {order_val} outside reasonable range for quadratic convergence"
+        )
+
 
 def test_zero_derivative_check_stops_cleanly() -> None:
     result = newton_raphson("x**3", x0=0.0)

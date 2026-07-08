@@ -15,10 +15,14 @@ These checks are simple to explain: Newton-Raphson can fail in exactly
 these three ways, so we detect each one and report it clearly instead of
 letting the program crash or loop forever.
 
-Each iteration also records an empirical "Order Estimate"
-(log(error_n+1) / log(error_n)), which should trend toward ~2.0 as the
-solver converges -- this is the quadratic convergence Newton-Raphson is
-known for.
+Each iteration also records an empirical "Order Estimate" computed as
+
+    p ≈ log(|e_n| / |e_{n-1}|) / log(|e_{n-1}| / |e_{n-2}|)
+
+where e_n is the step error at iteration n.  This is the standard
+empirical order-of-convergence formula from numerical analysis textbooks.
+For a simple root, Newton-Raphson has quadratic convergence, so this
+estimate should trend toward ~2.0 as the solver converges.
 """
 
 import sympy as sp
@@ -26,6 +30,8 @@ import pandas as pd
 import numpy as np
 
 from utilities import validate_equation
+
+__all__ = ["newton_raphson"]
 
 
 def newton_raphson(equation_str: str, x0: float, tol: float = 1e-6, max_iter: int = 50) -> dict:
@@ -57,6 +63,7 @@ def newton_raphson(equation_str: str, x0: float, tol: float = 1e-6, max_iter: in
     status_msg = "Max iterations reached without convergence."
     seen_points = []
     prev_error = None
+    prev_prev_error = None
 
     if tol <= 0:
         return {
@@ -77,8 +84,15 @@ def newton_raphson(equation_str: str, x0: float, tol: float = 1e-6, max_iter: in
     for n in range(max_iter):
         seen_points.append(x_current)
 
-        fx = float(f(x_current))
-        fpx = float(f_prime(x_current))
+        try:
+            fx = float(f(x_current))
+            fpx = float(f_prime(x_current))
+        except (ValueError, OverflowError, TypeError):
+            status_msg = (
+                f"Stopped: equation evaluation failed at x = {x_current:.5f}. "
+                f"Check that the equation is defined for all values the solver visits."
+            )
+            break
 
         # Check 1: zero derivative -- the tangent line is flat, can't proceed
         if abs(fpx) < 1e-12:
@@ -89,8 +103,11 @@ def newton_raphson(equation_str: str, x0: float, tol: float = 1e-6, max_iter: in
         error = abs(x_next - x_current)
 
         order_estimate = None
-        if prev_error is not None and prev_error > 0 and error > 0:
-            order_estimate = round(np.log(error) / np.log(prev_error), 3)
+        if prev_prev_error is not None and prev_error > 0 and error > 0:
+            order_estimate = round(
+                np.log(error / prev_error) / np.log(prev_error / prev_prev_error),
+                3,
+            )
 
         history.append({
             "Iteration": n,
@@ -102,6 +119,7 @@ def newton_raphson(equation_str: str, x0: float, tol: float = 1e-6, max_iter: in
             "Order Estimate": order_estimate,
             "Raw Error": error,
         })
+        prev_prev_error = prev_error
         prev_error = error
 
         # Check 2: divergence -- the guess is running away to infinity

@@ -9,7 +9,9 @@ deflection at position x along its span given by:
     delta(x) = P*x*(3*L^2 - 4*x^2) / (48*E*I),   valid for 0 <= x <= L/2
 
 Setting delta(x) - delta_target = 0 and simplifying gives a cubic equation
-in x -- power-rule derivative only.
+in x. A concentrated point load was chosen (instead of a UDL) so the
+resulting equation stays cubic, keeping the application consistent with
+the project's polynomial focus.
 """
 
 import pandas as pd
